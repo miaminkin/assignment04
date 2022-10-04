@@ -1,0 +1,393 @@
+#My Spotify Data
+rm(list=ls(all=TRUE))
+setwd("/Users/mia.minkin/Downloads/spotify_data")
+
+#Data
+library(foreign)
+library(dplyr)
+spotify_data<-read.csv("StreamingHistory0.csv")
+spotify_data2<-read.csv("StreamingHistory1.csv")
+spotify_data3<-read.csv("StreamingHistory2.csv")
+
+#Merge Data
+full_spotify_data<-rbind(spotify_data,spotify_data2,spotify_data3)
+
+#Miliseconds to minutes listened
+spotify_data$minutes_played<-spotify_data$msPlayed/60000
+spotify_data2$minutes_played<-spotify_data2$msPlayed/60000
+spotify_data3$minutes_played<-spotify_data3$msPlayed/60000
+
+#2021 Stats so far
+year_data<-full_spotify_data[10918:25732,]
+year_data$secondsplayed<-year_data$msPlayed/1000
+year_data_streams<-subset(year_data,secondsplayed>=30)
+
+#Top Artists STREAMED so far
+artist_count<-table(year_data_streams$artistName)
+top_artists<-as.data.frame(artist_count)
+colnames(top_artists)[1]<-"artist"
+colnames(top_artists)[2]<-"count"
+top_artists<-arrange(top_artists,-count)
+
+#Top Tracks STREAMED so far
+track_count<-table(year_data_streams$trackName)
+top_tracks<-as.data.frame(track_count)
+colnames(top_tracks)[1]<-"track_name"
+colnames(top_tracks)[2]<-"count"
+top_tracks<-arrange(top_tracks,-count)
+
+#Add row
+total_minutes<-sum(taylor_swift_2021$minutes_played)
+random1<-rbind(taylor_swift_2021,total_minutes)
+
+#Top Tracks Streamed by Taylor Swift
+taylor_swift_2021<-filter(year_data_streams,artistName=="Taylor Swift")
+top_taylor_swift<-table(taylor_swift_2021$trackName)
+top_taylor_swift<-as.data.frame(top_taylor_swift)
+colnames(top_taylor_swift)[1]<-"track_name"
+colnames(top_taylor_swift)[2]<-"count"
+top_taylor_swift<-arrange(top_taylor_swift,-count)
+
+#Top Tracks Streamed by Phoebe Bridgers
+phoebe_bridgers_2021<-filter(year_data_streams,artistName=="Phoebe Bridgers")
+top_phoebe_bridgers<-table(phoebe_bridgers_2021$trackName)
+top_phoebe_bridgers<-as.data.frame(top_phoebe_bridgers)
+colnames(top_phoebe_bridgers)[1]<-"track_name"
+colnames(top_phoebe_bridgers)[2]<-"count"
+top_phoebe_bridgers<-arrange(top_phoebe_bridgers,-count)
+
+
+#Top Tracks Streamed by Noah Kahan
+noah_kahan_2021<-filter(year_data_streams,artistName=="Noah Kahan")
+top_noah_kahan<-table(noah_kahan_2021$trackName)
+top_noah_kahan<-as.data.frame(top_noah_kahan)
+colnames(top_noah_kahan)[1]<-"track_name"
+colnames(top_noah_kahan)[2]<-"count"
+top_noah_kahan<-arrange(top_noah_kahan,-count)
+
+#Accounting for the fact that there are songs with same name
+trackcount_andartist<-with(year_data_streams,table(artistName,trackName))
+trackcount_andartist<-as.data.frame(trackcount_andartist)
+trackcount_andartist<-filter(trackcount_andartist,Freq>"0")
+colnames(trackcount_andartist)[1]<-"artist"
+colnames(trackcount_andartist)[2]<-"track_name"
+colnames(trackcount_andartist)[3]<-"count"
+trackcount_andartist<-arrange(trackcount_andartist,-count)
+
+#Fixing the Georgia situation maybe
+top_phoebe_2021<-filter(trackcount_andartist,artist=="Phoebe Bridgers")
+top_phoebe_2021=select(top_phoebe_2021,-artist)
+
+#Taylor Streams
+top_taylor_2021<-filter(trackcount_andartist,artist=="Taylor Swift")
+top_taylor_2021=select(top_taylor_2021,-artist)
+
+#Olivia Rodrigo Streams
+top_olivia_rodrigo_2021<-filter(trackcount_andartist,artist=="Olivia Rodrigo")
+top_olivia_rodrigo_2021=select(top_olivia_rodrigo_2021,-artist)
+
+#Artist with most tracks listened to
+artist_with_most_tracks<-table(trackcount_andartist$artist)
+artist_with_most_tracks<-as.data.frame(artist_with_most_tracks)
+colnames(artist_with_most_tracks)[1]<-"artist"
+colnames(artist_with_most_tracks)[2]<-"count"
+artist_with_most_tracks<-arrange(artist_with_most_tracks,-count)
+
+#Taylor Listening Per Month
+#Rearranged Date by Month
+full_data_month<-full_spotify_data
+full_data_month$secondsplayed<-full_data_month$msPlayed/1000
+full_data_month<-subset(full_data_month,secondsplayed>30)
+full_data_month=select(full_data_month,-msPlayed)
+
+#January Data
+january_listening<-full_data_month%>%filter(grepl("2021-01",endTime))
+january_listening=select(january_listening,-endTime,-secondsplayed)
+colnames(january_listening)[1]<-"artist"
+colnames(january_listening)[2]<-"track_name"
+
+#January Top Artist
+january_artist<-table(january_listening$artist)
+january_artist<-as.data.frame(january_artist)
+colnames(january_artist)[1]<-"artist"
+colnames(january_artist)[2]<-"count"
+january_artist<-arrange(january_artist,-count)
+
+#February Data
+february_listening<-full_data_month%>%filter(grepl("2021-02",endTime))
+february_listening=select(february_listening,-endTime,-secondsplayed)
+colnames(february_listening)[1]<-"artist"
+colnames(february_listening)[2]<-"track_name"
+
+#February Top Artist
+february_artist<-table(february_listening$artist)
+february_artist<-as.data.frame(february_artist)
+colnames(february_artist)[1]<-"artist"
+colnames(february_artist)[2]<-"count"
+february_artist<-arrange(february_artist,-count)
+
+#March Data
+march_listening<-full_data_month%>%filter(grepl("2021-03",endTime))
+march_listening=select(march_listening,-endTime,-secondsplayed)
+colnames(march_listening)[1]<-"artist"
+colnames(march_listening)[2]<-"track_name"
+
+#March Top Artist
+march_artist<-table(march_listening$artist)
+march_artist<-as.data.frame(march_artist)
+colnames(march_artist)[1]<-"artist"
+colnames(march_artist)[2]<-"count"
+march_artist<-arrange(march_artist,-count)
+
+#April Data
+april_listening<-full_data_month%>%filter(grepl("2021-04",endTime))
+april_listening=select(april_listening,-endTime,-secondsplayed)
+colnames(april_listening)[1]<-"artist"
+colnames(april_listening)[2]<-"track_name"
+
+#April Top Artist
+april_artist<-table(april_listening$artist)
+april_artist<-as.data.frame(april_artist)
+colnames(april_artist)[1]<-"artist"
+colnames(april_artist)[2]<-"count"
+april_artist<-arrange(april_artist,-count)
+
+#May Data
+may_listening<-full_data_month%>%filter(grepl("2021-05",endTime))
+may_listening=select(may_listening,-endTime,-secondsplayed)
+colnames(may_listening)[1]<-"artist"
+colnames(may_listening)[2]<-"track_name"
+
+#May Top Artist
+may_artist<-table(may_listening$artist)
+may_artist<-as.data.frame(may_artist)
+colnames(may_artist)[1]<-"artist"
+colnames(may_artist)[2]<-"count"
+may_artist<-arrange(may_artist,-count)
+
+#June Data
+june_listening<-full_data_month%>%filter(grepl("2021-06",endTime))
+june_listening=select(june_listening,-endTime,-secondsplayed)
+colnames(june_listening)[1]<-"artist"
+colnames(june_listening)[2]<-"track_name"
+
+#June Top Artist
+june_artist<-table(june_listening$artist)
+june_artist<-as.data.frame(june_artist)
+colnames(june_artist)[1]<-"artist"
+colnames(june_artist)[2]<-"count"
+june_artist<-arrange(june_artist,-count)
+
+
+#January-June Listening
+jan_june_artists<-rbind(january_artist,
+                      february_artist,
+                      march_artist,
+                      april_artist,
+                      may_artist,
+                      june_artist)
+
+#Phoebe Bridgers Listening Over Time
+phoebe_listening_over_time<-filter(jan_june_artists,
+                                 artist=="Phoebe Bridgers")
+phoebe_listening_over_time<-select(phoebe_listening_over_time,-artist)
+phoebe_listening_over_time$month<-c("January","February","March",
+                                    "April","May","June")
+colnames(phoebe_listening_over_time)[2]<-"month"
+colnames(phoebe_listening_over_time)[1]<-"streams"
+phoebe_listening_over_time<-phoebe_listening_over_time%>%
+  relocate(month,.before = streams)
+
+#Visualized
+par(mfrow = c(1, 1))
+
+#Super COOL graph
+library(plotly)
+phoebe_bridgers_tracker<-list(categoryorder = "array",
+              categoryarray = phoebe_listening_over_time$month)
+plot_ly(data = phoebe_listening_over_time,
+        x = ~month,
+        y = ~streams,
+        type = "scatter",
+        mode = "lines+markers") %>%
+  layout(title = "Phoebe Bridgers Streams by Month",
+         xaxis = phoebe_bridgers_tracker)
+
+
+#Taylor Swift Listening Over Time
+taylor_listening_over_time<-filter(jan_june_artists,
+                                   artist=="Taylor Swift")
+taylor_listening_over_time<-select(taylor_listening_over_time,-artist)
+taylor_listening_over_time$month<-c("January","February","March",
+                                    "April","May","June")
+colnames(taylor_listening_over_time)[2]<-"month"
+colnames(taylor_listening_over_time)[1]<-"streams"
+taylor_listening_over_time<-taylor_listening_over_time%>%
+  relocate(month,.before = streams)
+
+#Super COOL graph
+taylor_swift_tracker<-list(categoryorder = "array",
+                              categoryarray = taylor_listening_over_time$month)
+plot_ly(data = taylor_listening_over_time,
+        x = ~month,
+        y = ~streams,
+        type = "scatter",
+        mode = "lines+markers") %>%
+  layout(title = "Taylor Swift Streams by Month",
+         xaxis = taylor_swift_tracker)
+
+#Olivia Rodrigo Listening Over Time
+olivia_listening_over_time<-filter(jan_june_artists,
+                                   artist=="Olivia Rodrigo")
+olivia_listening_over_time<-select(olivia_listening_over_time,-artist)
+olivia_listening_over_time$month<-c("January","February","March",
+                                    "April","May","June")
+colnames(olivia_listening_over_time)[2]<-"month"
+colnames(olivia_listening_over_time)[1]<-"streams"
+olivia_listening_over_time<-olivia_listening_over_time%>%
+  relocate(month,.before = streams)
+
+#Super COOL graph
+olivia_rodrigo_tracker<-list(categoryorder = "array",
+                           categoryarray = olivia_listening_over_time$month)
+plot_ly(data = olivia_listening_over_time,
+        x = ~month,
+        y = ~streams,
+        type = "scatter",
+        mode = "lines+markers") %>%
+  layout(title = "Olivia Rodrigo Streams by Month",
+         xaxis = olivia_rodrigo_tracker)
+
+#COIN Listening Over Time
+coin_listening_over_time<-filter(jan_june_artists,
+                                   artist=="COIN")
+coin_listening_over_time<-select(coin_listening_over_time,-artist)
+coin_listening_over_time$month<-c("January","February","March",
+                                    "April","May","June")
+colnames(coin_listening_over_time)[2]<-"month"
+colnames(coin_listening_over_time)[1]<-"streams"
+coin_listening_over_time<-coin_listening_over_time%>%
+  relocate(month,.before = streams)
+
+#Super COOL graph
+coin_tracker<-list(categoryorder = "array",
+                             categoryarray = coin_listening_over_time$month)
+plot_ly(data = coin_listening_over_time,
+        x = ~month,
+        y = ~streams,
+        type = "scatter",
+        mode = "lines+markers") %>%
+  layout(title = "COIN Streams by Month",
+         xaxis = coin_tracker)
+
+
+#Combined: Phoebe, Taylor, Olivia, and Coin... Attempt
+testlol<-rbind(phoebe_listening_over_time,taylor_listening_over_time,
+      olivia_listening_over_time,coin_listening_over_time)
+tryagain<-filter(jan_june_artists,artist=="COIN"|
+                                  artist=="Taylor Swift"|
+                                  artist=="Phoebe Bridgers"|
+                                  artist=="Olivia Rodrigo")
+tryagain$month<-c("January","January","January","January",
+                  "February","February","February","February",
+                  "March","March","March","March",
+                  "April", "April", "April", "April", 
+                  "May","May","May","May",
+                  "June", "June", "June", "June")
+colnames(tryagain)[2]<-"streams"
+tryagain<-tryagain%>%
+  relocate(month,.before = artist)
+  
+#By Artist
+testtrack<-list(categoryorder = "array",
+                categoryarray = testlol$month)
+plot_ly(data = testlol,
+        x = ~month,
+        y = ~streams,
+        type = "scatter",
+        mode = "lines+markers") %>%
+  layout(title = "Streams by Month",
+         xaxis = testtrack)%>%
+  add_lines(data=phoebe_listening_over_time, name="phoebe", x = ~month, y = ~streams,
+            mode = "lines")
+
+
+# COOLEST PLOT EVER
+artist_monthly <- plot_ly()
+
+# add data from first dataframe Df1
+artist_monthly <- artist_monthly %>%
+  add_trace(type = "scatter",
+              mode = "markers+lines+text",
+              data=phoebe_listening_over_time, name="Phoebe Bridgers", x = ~month, y = ~streams)
+artist_monthly <- artist_monthly %>%
+  add_trace(type = "scatter",
+              mode = "markers+lines+text",
+              data=taylor_listening_over_time, name="Taylor Swift", x = ~month, y = ~streams)
+artist_monthly <- artist_monthly %>%
+  add_trace(type = "scatter",
+              mode = "markers+lines+text",
+              data=olivia_listening_over_time, name="Olivia Rodrigo", x = ~month, y = ~streams)
+artist_monthly <- artist_monthly %>%
+  add_trace(type = "scatter",
+              mode = "markers+lines+text",
+              data=coin_listening_over_time, name="COIN", x = ~month, y = ~streams)%>%
+  layout(title = "Streams per month",
+       xaxis = list(title = "Month",
+                    categoryorder = "array",
+                    categoryarray = ~month),
+       yaxis = list(title = "Streams"))
+
+# show figure
+artist_monthly
+
+#Phoebe only <3
+color<-c('#000000')
+phoebe_streams_2021<-plot_ly()
+phoebe_streams_2021 <- phoebe_streams_2021 %>%
+  add_trace(type = "scatter",
+            mode = "markers+lines+text",
+            marker=list(color=color),
+            line=list(color=color),
+            data=phoebe_listening_over_time, name="Phoebe Bridgers", x = ~month, y = ~streams)%>%
+  layout(title = "Phoebe Bridgers Streams per month",
+         xaxis = list(title = "Month",
+                      categoryorder = "array",
+                      categoryarray = ~month),
+         yaxis = list(title = "Streams"),
+          images = list(source ="https://cdns-images.dzcdn.net/images/artist/ba22e54b6a9b9696be627955a49c720a/500x500.jpg",
+                       xref = "paper",
+                       yref = "paper",
+                       x= 0.0522,
+                       y= 0.99,
+                       sizex = 0.2,
+                       sizey = 0.2,
+                       opacity = 1.0))
+phoebe_streams_2021
+
+#Cool plot of top artist streaming
+top5artists<-top_artists[-c(6:588),]
+ggplot(data = top5artists,aes(artist,count))+
+  geom_bar(stat = "identity",fill="pink")+
+  geom_text(aes(label=count), vjust=-0.1, size=3.5)+
+  labs(title="Top Artists This Year", 
+       x="Artist", y = "Streams")
+
+#Top Artist Plot
+ggplot(data = top5artists,aes(x=artist,y=count,group=1))+
+  geom_line()+
+  geom_point()+
+  geom_text(aes(label=count), hjust=0.7, vjust=-1.45, size=3)+
+  labs(title="Top Artists This Year", 
+       x="Artist", y = "Streams")
+
+
+
+#Flipped
+top5artists<-top_artists[-c(6:588),]
+ggplot(data = top5artists,aes(artist,count))+
+  geom_bar(stat = "identity",fill="pink")+
+  geom_text(aes(label=count), vjust=-0.1, size=3.5)+
+  labs(title="Top Artists This Year", 
+       x="Artist", y = "Streams")+
+coord_flip()

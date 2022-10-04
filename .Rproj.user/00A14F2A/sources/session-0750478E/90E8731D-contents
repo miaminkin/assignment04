@@ -1,0 +1,266 @@
+---
+title: "assignment03_<asm341>.qmd"
+author: Amelia Minkin, asm341
+format: pdf
+editor: visual
+editor_options: 
+chunk_output_type: console
+---
+
+## Loading packages
+
+```{r}
+library(tidyverse)
+library(srvyr)
+library(ipumsr)
+```
+
+## Exercise 01
+
+```{r}
+ddi<-read_ipums_ddi("cps_00001.xml")
+data<-read_ipums_micro(ddi)
+```
+
+## Exercise 02
+
+```{r}
+cps_svy<-(as_survey_design(data,weights=WTFINL))
+class(cps_svy)
+class(data)
+```
+
+```{r}
+#What is the universe?
+  #For UHRSWORKT: 
+    #Civilians age 15+ who are employed and either at work or absent from work during the survey week.
+  #For AHRSWORKT:
+    #1962-1988: Civilians age 14+, at work last week (pre-1968 samples do not include persons under age 14).
+    #1989+: Civilians age 15+, at work last week.
+
+#Is there a value for NIU?
+  #For UHRSWORKT, NIU: 999
+  #For AHRSWORKT, NIU: 999
+
+##Counting NIU in UHRSWORKT for 2020 and 2021
+cps_svy%>%
+  filter(UHRSWORKT==999)%>%
+  group_by(YEAR)%>%
+  summarize(n=unweighted(n()))
+
+##Counting NIU in AHRSWORKT for 2020 and 2021
+cps_svy%>%
+  filter(AHRSWORKT==999)%>%
+  group_by(YEAR)%>%
+  summarize(n=unweighted(n()))
+
+##Filtering out NIU values
+cps_subset_svy<-
+  (filter(cps_svy,UHRSWORKT!=999))
+
+##Counting responses for each value
+cps_subset_svy$variables%>%
+  filter(UHRSWORKT!=997)%>%
+  group_by(UHRSWORKT)%>%
+  count()%>%
+  ggplot(cps_subset_svy, 
+         mapping=
+           aes(x=UHRSWORKT,y=(after_stat=n)))+
+  geom_col()+
+  scale_x_continuous(limits = c(0, 120))
+
+##Mean hours in 2020 and 2021
+cps_subset_svy%>%
+  filter(UHRSWORKT!=997)%>%
+  group_by(YEAR)%>%
+  summarize(mean(UHRSWORKT))
+
+##New variable
+cps_subset_svy%>%
+filter(YEAR==2021)%>%
+mutate(forty_hours_2021=
+       if_else(
+       condition=UHRSWORKT==40,
+       true=1,
+       false=0))%>%
+summarize(survey_mean(forty_hours_2021))
+
+##Proportion of workers who worked less, same, and more than usual
+
+```
+
+##Exercise 03
+
+```{r}
+##Weighted counts of observations ages 16+
+cps_svy%>%
+  filter(AGE>=16)%>%
+  group_by(YEAR)%>%
+  survey_count()
+
+###Labor force variable
+cps_svy<-
+cps_svy%>%
+mutate(labor_force=
+       if_else(
+       condition=LABFORCE==2,
+       true=1,
+       false=0),
+       
+       employed=
+       if_else(
+       condition=EMPSTAT %in% c("01","10","12"),
+       true=1,
+       false=0),
+       
+       unemployed=
+       if_else(
+       condition=EMPSTAT %in% c("20","21","22"),
+       true=1,
+       false=0))
+
+##Total in labor force
+cps_svy%>%
+  filter(AGE>=16)%>%
+  group_by(YEAR)%>%
+  summarize(survey_total(labor_force==1))
+
+##Total employed
+cps_svy%>%
+  filter(AGE>=16)%>%
+  group_by(YEAR)%>%
+  summarize(survey_total(employed==1))
+
+##Total unemployed
+cps_svy%>%
+  filter(AGE>=16)%>%
+  group_by(YEAR)%>%
+  summarize(survey_total(unemployed==1))
+
+```
+
+##Exercise 04
+
+```{r}
+##Loading in data
+cps2021<-
+  filter(data,YEAR==2021)
+
+library(haven)
+nber<-read_dta("cpsb202104.dta")%>%
+      select(c(hufinal,pwcmpwgt))
+
+##Excluding incomplete labor force questions 
+nber<-
+  nber%>%
+  filter(hufinal<213)
+
+##Combining columns
+nber_cps<-
+  bind_cols(nber,cps2021)
+
+##Get rid of decimal places
+nber_cps<-
+  nber_cps%>%
+  mutate(pwcmpwgt=
+         pwcmpwgt/10000)
+
+##Create nber_cps_svy
+nber_cps_svy<-as_survey_design(nber_cps, weight=pwcmpwgt)
+
+##Creating new variables
+nber_cps_svy<-
+nber_cps_svy%>%
+mutate(labor_force=
+       if_else(
+       condition=LABFORCE==2,
+       true=1,
+       false=0),
+       
+       employed=
+       if_else(
+       condition=EMPSTAT %in% c("01","10","12"),
+       true=1,
+       false=0),
+       
+       unemployed=
+       if_else(
+       condition=EMPSTAT %in% c("20","21","22"),
+       true=1,
+       false=0))
+```
+
+```{r}
+##Total in labor force
+nber_cps_svy%>%
+  filter(AGE>=16)%>%
+  group_by(YEAR)%>%
+  summarize(survey_total(labor_force==1))
+
+##Total employed
+nber_cps_svy%>%
+  filter(AGE>=16)%>%
+  group_by(YEAR)%>%
+  summarize(survey_total(employed==1))
+
+##Total unemployed
+nber_cps_svy%>%
+  filter(AGE>=16)%>%
+  group_by(YEAR)%>%
+  summarize(survey_total(unemployed==1))
+```
+
+##Exercise 05
+
+```{r}
+
+ipums_conditions()
+#Employment status by age range in 2020
+cps_svy_df<-as.data.frame(cps_svy)
+
+cps_svy_df<-
+cps_svy_df%>%
+  mutate(AGE_GROUP=case_when(
+        AGE>=15&AGE<=18~"AGES_15_18",
+        AGE>=19&AGE<=24~"AGES_19_24",
+        AGE>=25&AGE<=34~"AGES_25_34",
+        AGE>=35&AGE<=44~"AGES_35_44",
+        AGE>=45&AGE<=54~"AGES_45_54",
+        AGE>=55&AGE<=64~"AGES_55_64",
+        AGE>=65~"AGES_65_OLDER"))
+
+EMPLOYMENT_BY_AGE_GROUP<-
+  cps_svy_df%>%
+  filter(employed==1)%>%
+  group_by(AGE_GROUP)%>%
+  count()
+
+UNEMPLOYED_BY_AGE_GROUP<-
+  cps_svy_df%>%
+  filter(employed==0)%>%
+  filter(AGE>14)%>%
+  group_by(AGE_GROUP)%>%
+  count()
+
+COMBINED_EMPLOYMENT_DATA_BY_AGE_GROUP<-
+  bind_cols(EMPLOYMENT_BY_AGE_GROUP,
+            UNEMPLOYED_BY_AGE_GROUP$n)
+
+COMBINED_EMPLOYMENT_DATA_BY_AGE_GROUP<-
+rename(COMBINED_EMPLOYMENT_DATA_BY_AGE_GROUP,EMPLOYED=n)
+
+COMBINED_EMPLOYMENT_DATA_BY_AGE_GROUP<-
+rename(COMBINED_EMPLOYMENT_DATA_BY_AGE_GROUP,UNEMPLOYED=3)
+
+PERCENTAGE_EMPLOYED_BY_AGE_GROUP<-
+  COMBINED_EMPLOYMENT_DATA_BY_AGE_GROUP%>%
+  mutate(TOTAL=EMPLOYED+UNEMPLOYED,
+         PERCENTAGE_EMPLOYED=EMPLOYED/TOTAL,
+         PERCENTAGE_UNEMPLOYED=UNEMPLOYED/TOTAL)
+
+ggplot(PERCENTAGE_EMPLOYED_BY_AGE_GROUP,
+       aes(x=AGE_GROUP,y=PERCENTAGE_UNEMPLOYED))+
+geom_bar(stat = 'identity')+
+coord_flip()
+
+```
