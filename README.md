@@ -1,4 +1,4 @@
 ---
 title: "README"
-author: "Mia Minkin"
+author: "Mia Minkin and Francesco de Luca"
 ---# assignment04
