@@ -3,7 +3,7 @@ library(tidyverse)
 library(gridExtra)
 
 #Loading data
-ANES_2020<-read_csv("2020_ANES.csv")
+ANES_2020<-read_csv("data/2020_ANES.csv")
 
 #Feeling thermometer of Democrats
 democrats_ANES_2020<-filter(ANES_2020,V201018==1)
@@ -103,15 +103,74 @@ ggplot(data=republican_donations,
   theme_classic()+
   coord_flip()
 
-
-
 grid.arrange(dem_donations_graph,republican_donations_graph,ncol=1, nrow=2)
 
 
+#Party Nerves
+
+#Nervous Republicans
+nervous_republicans<-filter(ANES_2020,V201018==2)
+nervous_republicans<-
+  nervous_republicans%>%
+  select(V201123)
+count(nervous_republicans,nervous_republicans$V201123>3)
+nervous_republicans<-as.data.frame(table(nervous_republicans$V201123))
+colnames(nervous_republicans)[1]<-"Level"
+colnames(nervous_republicans)[2]<-"Count"
+  
+#Nervous Democrats
+nervous_republicans<-filter(ANES_2020,V201018==2)
+nervous_republicans<-
+  nervous_republicans%>%
+  select(V201123)
+count(nervous_republicans,nervous_republicans$V201123>3)
+nervous_republicans<-as.data.frame(table(nervous_republicans$V201123))
+colnames(nervous_republicans)[1]<-"Level"
+colnames(nervous_republicans)[2]<-"Count"
 
 
 
 
 
 
+
+V201123
+voting_pref<-
+  ANES_2020%>%
+  select(V201029,V202074)
+
+colnames(voting_pref)[1]<-"Pres_Vote"
+colnames(voting_pref)[2]<-"Pref_Strength"
+
+biden_voters<-
+  subset(voting_pref,Pres_Vote==1)
+  
+
+
+
+
+
+
+
+biden_voters<-filter(ANES_2020,V201029==1)
+biden_voter_preference<-
+  ANES_2020%>%
+  select(V201029,V202074)%>%
+  filter(V201029==1)
+colnames(biden_voter_preference)[1]<-"Pres_Vote"
+colnames(biden_voter_preference)[2]<-"Pref_Strength"
+
+table(biden_voter_preference)
+
+
+
+trump_voters<-filter(ANES_2020,V201029==2)
+trump_voter_pref<-
+  ANES_2020%>%
+  select(V201029,V201034)%>%
+  filter(V201029==2)
+colnames(trump_voter_pref)[1]<-"Pres_Vote"
+colnames(trump_voter_pref)[2]<-"Pref_Strength"
+
+table(biden_voter_preference)
 

@@ -129,6 +129,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
+<p><strong>Data Source</strong></p>
+<p>“https://electionstudies.org/data-center/2020-time-series-study/”</p>
 <p><strong>Loading packages</strong></p>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
@@ -303,6 +305,126 @@ dbl (1751): V200001, V160001_orig, V200002, V200003, V200004, V200005, V2000...
 </div>
 <p><strong>Summary of visualization 2</strong></p>
 <p>The second visualization shows the number of respondents who did and did not donate to an individual candidate in the 2020 election broken down by party. Looking at the two graphs next to one another, you can see that Democrats donated at a higher frequency than Republicans did. This does not speak to the amount donated by the respondents, but indicates that there were more individual donors among Democrat respondents than Republican respondents.</p>
+</section>
+<section id="visualization-3-voting-preferences-of-muslims" class="level2">
+<h2 class="anchored" data-anchor-id="visualization-3-voting-preferences-of-muslims"><strong>Visualization 3: Voting Preferences of Muslims</strong></h2>
+<p><strong>Loading Data</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Muslim voting preferences</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>muslim_preferences<span class="ot">&lt;-</span><span class="fu">filter</span>(ANES_2020,V201457x<span class="sc">==</span><span class="dv">720</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>muslim_preferences<span class="ot">&lt;-</span><span class="fu">filter</span>(muslim_preferences,V202073<span class="sc">&gt;</span><span class="dv">0</span><span class="sc">&amp;</span>V202073<span class="sc">&lt;</span><span class="dv">3</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(muslim_preferences,muslim_preferences<span class="sc">$</span>V202073<span class="sc">==</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  `muslim_preferences$V202073 == 1`     n
+  &lt;lgl&gt;                             &lt;int&gt;
+1 FALSE                                 3
+2 TRUE                                 23</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(muslim_preferences,muslim_preferences<span class="sc">$</span>V202073<span class="sc">==</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  `muslim_preferences$V202073 == 2`     n
+  &lt;lgl&gt;                             &lt;int&gt;
+1 FALSE                                23
+2 TRUE                                  3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>muslim_preferences<span class="ot">&lt;-</span><span class="fu">as.data.frame</span>(<span class="fu">table</span>(muslim_preferences<span class="sc">$</span>V202017))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>muslim_preferences</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Var1 Freq
+1    1    2
+2    2   24</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(muslim_preferences)[<span class="dv">1</span>]<span class="ot">&lt;-</span><span class="st">"Candidate"</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(muslim_preferences)[<span class="dv">2</span>]<span class="ot">&lt;-</span><span class="st">"Frequency"</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(muslim_preferences)[<span class="dv">1</span>]<span class="ot">&lt;-</span><span class="st">"Biden"</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(muslim_preferences)[<span class="dv">2</span>]<span class="ot">&lt;-</span><span class="st">"Trump"</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>muslim_preferences</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Candidate Frequency
+Biden         1         2
+Trump         2        24</code></pre>
+</div>
+</div>
+<p><strong>Graph</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>muslim_preferences_graph<span class="ot">&lt;-</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>muslim_preferences,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>Candidate,<span class="at">y=</span>Frequency))<span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">fill=</span><span class="st">"purple"</span>)<span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">"1"</span><span class="ot">=</span><span class="st">"Biden"</span>,<span class="st">"2"</span><span class="ot">=</span><span class="st">"Trump"</span>))<span class="sc">+</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span>Frequency), <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="dv">4</span>)<span class="sc">+</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Who did the respondent vote for?"</span>)<span class="sc">+</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Frequency"</span>)<span class="sc">+</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Voting Preferences of Muslims"</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Number of Muslims Who Voted For Trump vs. Biden"</span>)<span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>muslim_preferences_graph</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Summary of visualization 3</strong></p>
+<p>The distribution indicates that the overwhelming majority of the sampled population who identifies as Muslim voted for Trump at the last presidential elections. Such a result clashes with the expected frequency of self-identified Muslim respondents, who should have favored the Democratic candidate.</p>
+</section>
+<section id="visualization-4-voting-preferences-of-catholics-loading-data" class="level2">
+<h2 class="anchored" data-anchor-id="visualization-4-voting-preferences-of-catholics-loading-data"><strong>Visualization 4: Voting Preferences of Catholics</strong> <strong>Loading Data</strong></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Catholic voting preferences</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>catholic_preferences<span class="ot">&lt;-</span><span class="fu">filter</span>(ANES_2020,V201457x<span class="sc">==</span><span class="dv">400</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>catholic_preferences<span class="ot">&lt;-</span><span class="fu">filter</span>(catholic_preferences,V202073<span class="sc">&gt;</span><span class="dv">0</span><span class="sc">&amp;</span>V202073<span class="sc">&lt;</span><span class="dv">3</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(catholic_preferences,catholic_preferences<span class="sc">$</span>V202073<span class="sc">==</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  `catholic_preferences$V202073 == 1`     n
+  &lt;lgl&gt;                               &lt;int&gt;
+1 FALSE                                 544
+2 TRUE                                  644</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(catholic_preferences,catholic_preferences<span class="sc">$</span>V202073<span class="sc">==</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  `catholic_preferences$V202073 == 2`     n
+  &lt;lgl&gt;                               &lt;int&gt;
+1 FALSE                                 644
+2 TRUE                                  544</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>catholic_preferences<span class="ot">&lt;-</span><span class="fu">as.data.frame</span>(<span class="fu">table</span>(catholic_preferences<span class="sc">$</span>V202017))</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(catholic_preferences)[<span class="dv">1</span>]<span class="ot">&lt;-</span><span class="st">"Candidate"</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(catholic_preferences)[<span class="dv">2</span>]<span class="ot">&lt;-</span><span class="st">"Frequency"</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(catholic_preferences)[<span class="dv">1</span>]<span class="ot">&lt;-</span><span class="st">"Biden"</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(catholic_preferences)[<span class="dv">2</span>]<span class="ot">&lt;-</span><span class="st">"Trump"</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>catholic_preferences</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Candidate Frequency
+Biden         1       241
+Trump         2       947</code></pre>
+</div>
+</div>
+<p><strong>Graph</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Graph</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>catholic_preferences_graph<span class="ot">&lt;-</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>catholic_preferences,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>Candidate,<span class="at">y=</span>Frequency))<span class="sc">+</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">fill=</span><span class="st">"gold"</span>)<span class="sc">+</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">"1"</span><span class="ot">=</span><span class="st">"Biden"</span>,<span class="st">"2"</span><span class="ot">=</span><span class="st">"Trump"</span>))<span class="sc">+</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span>Frequency), <span class="at">hjust=</span><span class="dv">0</span>, <span class="at">size=</span><span class="dv">4</span>)<span class="sc">+</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Who did the respondent vote for?"</span>)<span class="sc">+</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Frequency"</span>)<span class="sc">+</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Voting Preferences of Catholics"</span>,</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Number of Catholics Who Voted For Trump vs. Biden"</span>)<span class="sc">+</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>catholic_preferences_graph</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Summary of Visualization 4</strong></p>
+<p>The distribution indicates that the overwhelming majority of the sampled population who identifies as Catholic voted for Trump at the last presidential elections. Such a result is, unexpectedly, in line with the result for the self-identified sampled Muslims, who also voted for Trump.</p>
 </section>
 
 </main>

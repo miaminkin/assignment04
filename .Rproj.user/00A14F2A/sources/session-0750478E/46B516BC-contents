@@ -151,3 +151,83 @@ grid.arrange(dem_donations_graph,republican_donations_graph,ncol=1, nrow=2)
 **Summary of visualization 2**
 
 The second visualization shows the number of respondents who did and did not donate to an individual candidate in the 2020 election broken down by party. Looking at the two graphs next to one another, you can see that Democrats donated at a higher frequency than Republicans did. This does not speak to the amount donated by the respondents, but indicates that there were more individual donors among Democrat respondents than Republican respondents.
+
+## **Visualization 3: Voting Preferences of Muslims**
+
+**Loading Data**
+
+```{R}
+#Muslim voting preferences
+muslim_preferences<-filter(ANES_2020,V201457x==720)
+muslim_preferences<-filter(muslim_preferences,V202073>0&V202073<3)
+count(muslim_preferences,muslim_preferences$V202073==1)
+count(muslim_preferences,muslim_preferences$V202073==2)
+muslim_preferences<-as.data.frame(table(muslim_preferences$V202017))
+muslim_preferences
+colnames(muslim_preferences)[1]<-"Candidate"
+colnames(muslim_preferences)[2]<-"Frequency"
+rownames(muslim_preferences)[1]<-"Biden"
+rownames(muslim_preferences)[2]<-"Trump"
+muslim_preferences
+```
+
+**Graph**
+
+```{R}
+muslim_preferences_graph<-
+ggplot(data=muslim_preferences,
+       aes(x=Candidate,y=Frequency))+
+  geom_bar(stat="identity", fill="purple")+
+  scale_x_discrete(labels=c("1"="Biden","2"="Trump"))+
+  geom_text(aes(label=Frequency), hjust=0, size=4)+
+  xlab("Who did the respondent vote for?")+
+  ylab("Frequency")+
+  ggtitle("Voting Preferences of Muslims",
+          "Number of Muslims Who Voted For Trump vs. Biden")+
+  theme_classic()+
+  coord_flip()
+muslim_preferences_graph
+```
+
+**Summary of visualization 3**
+
+The distribution indicates that the overwhelming majority of the sampled population who identifies as Muslim voted for Trump at the last presidential elections. Such a result clashes with the expected frequency of self-identified Muslim respondents, who should have favored the Democratic candidate.
+
+##  **Visualization 4: Voting Preferences of Catholics** **Loading Data**
+
+```{R}
+#Catholic voting preferences
+catholic_preferences<-filter(ANES_2020,V201457x==400)
+catholic_preferences<-filter(catholic_preferences,V202073>0&V202073<3)
+count(catholic_preferences,catholic_preferences$V202073==1)
+count(catholic_preferences,catholic_preferences$V202073==2)
+catholic_preferences<-as.data.frame(table(catholic_preferences$V202017))
+colnames(catholic_preferences)[1]<-"Candidate"
+colnames(catholic_preferences)[2]<-"Frequency"
+rownames(catholic_preferences)[1]<-"Biden"
+rownames(catholic_preferences)[2]<-"Trump"
+catholic_preferences
+```
+
+**Graph**
+
+```{R}
+#Graph
+catholic_preferences_graph<-
+ggplot(data=catholic_preferences,
+       aes(x=Candidate,y=Frequency))+
+  geom_bar(stat="identity", fill="gold")+
+  scale_x_discrete(labels=c("1"="Biden","2"="Trump"))+
+  geom_text(aes(label=Frequency), hjust=0, size=4)+
+  xlab("Who did the respondent vote for?")+
+  ylab("Frequency")+
+  ggtitle("Voting Preferences of Catholics",
+          "Number of Catholics Who Voted For Trump vs. Biden")+
+  theme_classic()+
+  coord_flip()
+catholic_preferences_graph
+```
+
+**Summary of Visualization 4**
+
+The distribution indicates that the overwhelming majority of the sampled population who identifies as Catholic voted for Trump at the last presidential elections. Such a result is, unexpectedly, in line with the result for the self-identified sampled Muslims, who also voted for Trump.
