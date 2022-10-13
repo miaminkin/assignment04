@@ -6,6 +6,7 @@ editor: visual
 chunk_output_type: console
 editor_options: 
   chunk_output_type: console
+ self-contained: true
 ---
 
 **Data Source**
